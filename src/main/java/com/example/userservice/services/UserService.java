@@ -1,8 +1,8 @@
 package com.example.userservice.services;
 
-import ch.qos.logback.core.pattern.color.BoldCyanCompositeConverter;
 import com.example.userservice.models.Token;
 import com.example.userservice.models.User;
+import com.example.userservice.repos.TokenRepo;
 import com.example.userservice.repos.UserRepo;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,11 +15,14 @@ import java.util.Optional;
 public class UserService {
     private UserRepo userRepo;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private TokenRepo tokenRepo;
 
 
-    public UserService(UserRepo userRepo, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public UserService(UserRepo userRepo, BCryptPasswordEncoder bCryptPasswordEncoder,
+                       TokenRepo tokenRepo) {
         this.userRepo = userRepo;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.tokenRepo= tokenRepo;
     }
 
     public User signup(String username, String email, String password) {
@@ -57,7 +60,20 @@ public class UserService {
         token.setValue(RandomStringUtils.randomAlphanumeric(10));
         token.setUser(user);
         token.setExpiryAt(System.currentTimeMillis()+ 3600000);
-
+        token.setDeleted(false);
+        tokenRepo.save(token);
         return token;
+    }
+
+    public User validate(String token){
+
+        Optional<Token> optinalToken=tokenRepo.
+                findByValueAndDeletedAndExpiryAtGreaterThan(token,false,System.currentTimeMillis());
+        System.out.println(optinalToken.get().getUser());
+        if(optinalToken.isEmpty()){
+            return null;
+        }
+
+        return optinalToken.get().getUser();
     }
 }
