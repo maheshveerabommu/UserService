@@ -39,7 +39,9 @@ public class UserController {
     public SignupResponseDto validate(@PathVariable String token){
        User user= userService.validate(token);
        if (user==null ){
-            throw new UsernameNotFoundException("Invalid token");
+            System.out.println("Invalid token");
+//            throw new UsernameNotFoundException("Invalid token");
+           return null;
         }
          return SignupResponseDto.form(user);
     }

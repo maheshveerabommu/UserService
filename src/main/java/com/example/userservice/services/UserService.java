@@ -69,7 +69,6 @@ public class UserService {
 
         Optional<Token> optinalToken=tokenRepo.
                 findByValueAndDeletedAndExpiryAtGreaterThan(token,false,System.currentTimeMillis());
-        System.out.println(optinalToken.get().getUser());
         if(optinalToken.isEmpty()){
             return null;
         }
